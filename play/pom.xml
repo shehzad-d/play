@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  
+    <modelVersion>4.0.0</modelVersion>
+    
+	<groupId>play</groupId>
+    <artifactId>com.sditta.play</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+    <description>Play - Automated tests</description>
+
+    <properties>
+        <main.basedir>${project.basedir}</main.basedir>
+        <sonar.language>java</sonar.language>
+        <custom.folder>config</custom.folder>
+        <surefire.thread.count>1</surefire.thread.count>
+        <surefire.fork.count>0</surefire.fork.count>
+        <features>src/test/resources/features</features>
+        <testFailureIgnore>true</testFailureIgnore>
+        <generateHarReport>false</generateHarReport>
+        <driverType>$driver</driverType>
+        <jenkinsStyleReports>true</jenkinsStyleReports>
+        <chromeDriverPath>src/main/resources/drivers/chromedriver.exe</chromeDriverPath>
+        <java.version>1.8</java.version>
+        <junit.version>4.12</junit.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <cucumber.version>1.2.5</cucumber.version>
+        <maven.compiler.version>3.3</maven.compiler.version>
+        <maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <applitools.version>2.56</applitools.version>
+        <logback.version>1.1.7</logback.version>
+        <wiremock.version>2.5.1</wiremock.version>
+        <cucumber.jvm.parallel.version>1.2.1</cucumber.jvm.parallel.version>
+        <wiremock.version>1.58</wiremock.version>
+        <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
+        <checkstyle.version>6.19</checkstyle.version>
+        <acceptance.tests.in.parallel>1</acceptance.tests.in.parallel>
+        <logLevel>WARN</logLevel>
+        <include>**/*Test.class</include>
+        <tags>default</tags>
+        <ignoreTags>~@manual</ignoreTags>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/test-classes/com/dlg/saucecucumberjvm</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.temyers</groupId>
+                <artifactId>cucumber-jvm-parallel-plugin</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>generateRunners</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generateRunners</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Mandatory -->
+                            <!-- List of package names to scan for glue code. -->
+                            <!--<glue>-->
+                            <!--<package>${project.groupId}.step_definitions</package>-->
+                            <!--<package>com.usmanhussain.habanero.framework.hooks</package>-->
+                            <!--</glue>-->
+
+                            <glue>
+                                <package>com.sditta.play.step_definitions</package>
+                                <package>com.usmanhussain.habanero.framework.hooks</package>
+                            </glue>
+                            <!-- These are optional, with the default values -->
+                            <!-- Where to output the generated tests -->
+                            <outputDirectory>${project.build.directory}/generated-test-sources/features
+                            </outputDirectory>
+                            <!-- The directory, which must be in the root of the runtime classpath, containing your feature files.  -->
+                            <featuresDirectory>${features}</featuresDirectory>
+                            <!-- Directory where the cucumber report files shall be written  -->
+                            <cucumberOutputDir>${project.build.directory}/cucumber_reports/regression_results
+                            </cucumberOutputDir>
+                            <!-- List of cucumber plugins. When none are provided the json formatter is used. For more
+                                 advanced usage see section about configuring cucumber plugins -->
+                            <plugins>
+                                <plugin>
+                                    <name>json</name>
+                                </plugin>
+                                <plugin>
+                                    <name>html</name>
+                                </plugin>
+                                <plugin>
+                                    <name>junit</name>
+                                </plugin>
+                                <plugin>
+                                    <name>rerun</name>
+                                </plugin>
+                            </plugins>
+                            <!-- CucumberOptions.strict property -->
+                            <strict>true</strict>
+                            <!-- CucumberOptions.monochrome property -->
+                            <monochrome>true</monochrome>
+                            <!-- The tags to run, maps to CucumberOptions.tags property. Default is no tags. -->
+                            <tags>
+                                <tag>${tags}</tag>
+                                <tag>${ignoreTags}</tag>
+                            </tags>
+                            <!-- Generate TestNG runners instead of JUnit ones. -->
+                            <useTestNG>false</useTestNG>
+                            <!-- The naming scheme to use for the generated test classes.  One of ['simple', 'feature-title', 'pattern'] -->
+                            <namingScheme>pattern</namingScheme>
+                            <!-- The class naming pattern to use.  Only required/used if naming scheme is 'pattern'.-->
+                            <namingPattern>{f}_Parallel{c}Test</namingPattern>
+                            <!-- One of [SCENARIO, FEATURE]. SCENARIO generates one runner per scenario.  FEATURE generates a runner per feature. -->
+                            <parallelScheme>SCENARIO</parallelScheme>
+                            <!-- Specify a custom template for the generated sources (this is a path relative to the project base directory) -->
+                            <customVmTemplate>src/main/resources/cucumber-junit-runner.java.vm</customVmTemplate>
+                            <!-- Specify a custom package name for generated sources. Default is no package.-->
+                            <packageName>com.sditta</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <id>merge-cucumber-js-reports</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>true</includeProjectDependencies>
+                            <classpathScope>test</classpathScope>
+                            <mainClass>com.usmanhussain.ghost.JSONReportMerger</mainClass>
+                            <arguments>
+                                <argument>target/cucumber_reports/regression_results</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>collate-exceptions</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>true</includeProjectDependencies>
+                            <classpathScope>test</classpathScope>
+                            <mainClass>com.usmanhussain.ghost.AutoSmart</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <projectName>cucumber-jvm</projectName>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <cucumberOutput>
+                                ${project.build.directory}/cucumber_reports/regression_results/cucumber.json
+                            </cucumberOutput>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <!--<parallel>all</parallel>-->
+                    <threadCount>${surefire.thread.count}</threadCount>
+                    <forkCount>${surefire.fork.count}</forkCount>
+                    <argLine>-Duser.language=en</argLine>
+                    <argLine>-Xmx1024m</argLine>
+                    <argLine>-XX:MaxPermSize=256m</argLine>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <useFile>false</useFile>
+                    <testFailureIgnore>${testFailureIgnore}</testFailureIgnore>
+                    <!--<printSummary>true</printSummary>-->
+                    <includes>
+                        <include>${include}</include>
+                    </includes>
+                    <systemPropertyVariables>                   
+                        <!--<COGNOS>${cognos}</COGNOS>-->
+                        <driverType>${driverType}</driverType>
+                        <generateHarReport>${generateHarReport}</generateHarReport>
+                        <webdriver.chrome.driver>${chromeDriverPath}</webdriver.chrome.driver>
+                        <webdriver.ie.driver>${ieDriverPath}</webdriver.ie.driver>
+                        <webdriver.gecko.driver>${geckoDriverPath}</webdriver.gecko.driver>
+                        <!--<webdriver.phantomjs.driver>${phantomjsDriverPath}</webdriver.phantomjs.driver>
+                        <phantomjs.binary.path>${phantomjsDriverPath}</phantomjs.binary.path>-->
+                        <jenkinsStyleReports>${jenkinsStyleReports}</jenkinsStyleReports>
+                        <logLevel>debug</logLevel>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.4</version>
+        </dependency>
+         <dependency>
+            <groupId>com.usmanhussain.habanero</groupId>
+            <artifactId>Habanero</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
